@@ -1,9 +1,14 @@
-import { ConflictException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Payload } from 'src/interfaces/payload';
+import { UserRoles } from './enums/user.enum';
+import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
+import { encodePassword } from 'src/utils/bcrypt';
+const bcrypt = require("bcrypt");
 
 @Injectable()
 export class UsersService {
@@ -13,85 +18,62 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  create(username: string, password: string): Promise<User> {
-    try {
-      console.log('----CREATE A USER SERVICE INIT----')
+ 
+  async create(createUserDto: CreateUserDto) {
+    const hashedMdp = encodePassword(createUserDto.password);
+    // console.log(hashedMdp); 
+    // pour hash du mdp de confirmation
+    // const hashedMdp = encodePassword(createUserDto.confirm);
+    const user = this.usersRepository.create({...createUserDto });
+     
+    return await this.usersRepository.save(user);
+    // return 'This action adds a new user';
+  }
 
-      const user = new User();
-      user.fullName = username;
-      user.password = password;
+  async findAll(): Promise<User[]> {
+    return await this.usersRepository.find();
+  }
+
+
+  async findOneByRole(role: string): Promise<User> {
+    role = UserRoles.PATIENT;
+    const userId =  await this.usersRepository.findOneBy({role: role});
+    return userId;
+  }
+ 
+
+  async findByEmail(email: string) {
+    return await this.usersRepository.findOneBy({ email: email,});
+  }
   
-      return this.usersRepository.save(user);
-    } catch (error) {
-      console.log('----CREATE A USER SERVICE ERROR INIT----', error)
-      return error;
+
+  async findByPayload(payload: Payload) {
+    const { email } = payload;
+    return await this.usersRepository.findOne({ where: { email } });
+  }
+
+  async findByLogin(UserDTO: CreateAuthDto) {
+    const { email, password } = UserDTO;
+    const user = await this.usersRepository.findOne({ where: { email: email } });
+    if (!user) {
+      throw new HttpException('user doesnt exists', HttpStatus.BAD_REQUEST);
     }
-   
-  }
-
-  findByUsername(username: string): Promise<User> {
-    try {
-      console.log('----FIND BY USERNAME SERVICE INIT----')
-      // const user = new User();
-    // user.fullName = username;
-    return this.usersRepository.findOneBy({fullName: username});
-    } catch (error) {
-      console.log('----FIND BY USERNAME SERVICE ERROR INIT----', error)
+    if (await bcrypt.compare(password, user.password)) {
+      return this.sanitizeUser(user)
+    } else {
+      throw new HttpException('invalid credential', HttpStatus.BAD_REQUEST);
     }
   }
 
-
-  async register(username: string, password: string): Promise<User> {
-    try {
-      console.log('----REGISTER AN USER SERVICE INIT----')
-      const existingUser = await this.findByUsername(username);
-
-      if (existingUser) {
-        throw new ConflictException('Username already exists');
-      }
-  
-      const user = new User();
-      user.fullName = username;
-      user.password = password; // In a real application, make sure to hash the password before storing it
-  
-      return this.usersRepository.save(user);
-    } catch (error) {
-      console.log('----REGISTER AN USER SERVICE ERROR INIT----', error)
-    }
-  
+  sanitizeUser(user: any) {
+    const sanitized = user.toObject();
+    delete sanitized['password'];
+    return sanitized;
   }
 
-  async validateUser(username: string, password: string): Promise<User> {
-    try {
-      console.log('----VALIDATEUSER SERVICE INIT----')
-
-      const user = await this.findByUsername(username);
-  
-      if (!user || user.password !== password) { // In a real application, make sure to hash the password and compare the hashed values
-        throw new UnauthorizedException('Invalid credentials');
-      }
-  
-      return user;
-    } catch (error) {
-      console.log('----VALIDATEUSER SERVICE ERROR INIT----', error)
-
-    }
-   
-  }
-  
-  findAll() {
-    return `This action returns all users`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
+  // async fetchRole(){
+  //     return await this.usersRepository.createQueryBuilder("users")
+  //     .where("users.role = :role", {role: UserRoles.DOCTOR})
+  //     .getRawMany();
+  // }
 }
