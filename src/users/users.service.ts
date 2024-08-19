@@ -37,8 +37,8 @@ export class UsersService {
 
   async findOneByRole(role: string): Promise<User> {
     role = UserRoles.PATIENT;
-    const userId =  await this.usersRepository.findOneBy({role: role});
-    return userId;
+    const user =  await this.usersRepository.findOneBy({role: role});
+    return user;
   }
  
 

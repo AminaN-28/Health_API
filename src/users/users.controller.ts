@@ -19,7 +19,7 @@ export class UsersController {
   }
 
 
-  @Get(':id')
+  @Get(':role')
   async findOne(@Param('role') role: string, @Res() res): Promise<Response> {
     let user = await this.usersService.findOneByRole(role)
     if(user) return res.status(HttpStatus.OK).json(user)
@@ -29,6 +29,15 @@ export class UsersController {
     // return res.status(HttpStatus.NOT_FOUND).json({"error" : "This resource  no longer exist or has been removed"})
   }
 
+  @Get(':email')
+  async findOneById(@Param('email') email, @Res() res): Promise<Response> {
+    let user = await this.usersService.findByEmail(email)
+    if(user) return res.status(HttpStatus.OK).json(user)
+    else {
+      throw HttpException;
+    }
+    // return res.status(HttpStatus.NOT_FOUND).json({"error" : "This resource  no longer exist or has been removed"})
+  }
   
 
 
