@@ -1,5 +1,4 @@
 import { ConflictException, HttpException, HttpStatus, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -8,6 +7,7 @@ import { Payload } from 'src/interfaces/payload';
 import { UserRoles } from './enums/user.enum';
 import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
 import { encodePassword } from 'src/utils/bcrypt';
+import { CreateUserDto } from './dto/create-user.dto';
 const bcrypt = require("bcrypt");
 
 @Injectable()
@@ -19,7 +19,7 @@ export class UsersService {
   ) {}
 
  
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto : any) {
     const hashedMdp = encodePassword(createUserDto.password);
     // console.log(hashedMdp); 
     // pour hash du mdp de confirmation
