@@ -6,8 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PassportModule } from '@nestjs/passport';
-import { DATABASE_HOST, DATABASE_PASSWORD, DATABASE_USER } from './config/constant';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { DATABASE_HOST, DATABASE_PASSWORD, DATABASE_USER } from './config/constant';
 
 @Module({
   imports: [
@@ -33,6 +33,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
       inject: [ConfigService],
     }),
     AuthModule,
+    
     UsersModule,
     PassportModule.register({defaultStrategy: 'jwt', session : true}),
     AppointmentsModule,
