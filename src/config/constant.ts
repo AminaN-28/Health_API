@@ -1,6 +1,6 @@
 
 export const DATABASE_HOST = 'localhost'
-export const DATABASE_NAME= 'health_api'
+export const DATABASE_NAME= 'health_handler_new'
 export const DATABASE_PORT= 3306
-export const DATABASE_USER= 'DATABASE_USER'
-export const DATABASE_PASSWORD= 'DATABASE_PASSWORD'
+export const DATABASE_USER= 'root'
+export const DATABASE_PASSWORD= ''

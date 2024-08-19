@@ -1,4 +1,5 @@
-import { Column, PrimaryGeneratedColumn } from "typeorm";
+import { Appointment } from "src/appointments/entities/appointment.entity";
+import { Column, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 export class User {
     @PrimaryGeneratedColumn('uuid')
@@ -10,10 +11,11 @@ export class User {
 
     @Column({ unique: true })
     email: string;
-
+    @Column()
+    fullName: string;
 
     @Column()
-    age: string;
+    age: number;
 
     @Column()
     gender: string;
@@ -29,5 +31,7 @@ export class User {
     address: string;
 
     role: string;
-
+    
+    @OneToMany(() => Appointment, app => app.user)
+    appointed?: Appointment[];
 }

@@ -4,7 +4,7 @@
     "port": 3306,
     "username": "root",
     "password": "",
-    "database": "nest-auth-health-api",
+    "database": "health_handler_new",
     "entities": ["src/**/**.entity{.ts,.js}"],
     "synchronize": true
 }

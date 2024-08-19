@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PassportModule } from '@nestjs/passport';
+import { AppointmentsModule } from './appointments/appointments.module';
 import { DATABASE_HOST, DATABASE_PASSWORD, DATABASE_USER } from './config/constant';
 
 @Module({
@@ -32,8 +33,10 @@ import { DATABASE_HOST, DATABASE_PASSWORD, DATABASE_USER } from './config/consta
       inject: [ConfigService],
     }),
     AuthModule,
+    
     UsersModule,
     PassportModule.register({defaultStrategy: 'jwt', session : true}),
+    AppointmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
